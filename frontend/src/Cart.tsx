@@ -61,24 +61,58 @@ const Cart = () => {
                 console.error('Error fetching user data:', error);
             }
         };
-
         fetchData();
-    }, [cookies, navigate]);
+        
+    }, [cookies, navigate,]);
 
     const handleLogout = () => {
         removeCookie('token');
         navigate('/');
     };
+    const handleSubmit = async () => {
+        try {
+            if (!userData) return;
+            for (const item of cartData || []) {
+                const shohin_id = item.shohin_id;
+                const quantity = updatedQuantities[shohin_id];
+               
+                if (quantity !== undefined) {
+                    console.log(updatedQuantities[shohin_id]); // quantity の値を出力
 
-    const handleQuantityChange = (shohin_id: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const quantity = parseInt(e.target.value)
-        setUpdatedQuantities(prevState => ({
-            ...prevState,
-            [shohin_id]: quantity
-        }));
+                    await axios.put(
+                        `http://localhost:8000/shop/${userData.id}/cart`,
+                        { shohin_id, quantity },
+                        { headers: { Authorization: `Bearer ${cookies.token}` } }
+                    );
+                }
+            }
+
+            navigate(`/${userData.id}/cart`);
+        } catch (error) {
+            console.error('Error updating cart:', error);
+        }
     };
 
-    const handleItemSelection = (shohin_id: number) => {
+
+    const handleQuantityChange = async (shohin_id: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const quantity = parseInt(e.target.value);
+        // 数量が0の場合は元の数量を保持する
+        const originalQuantity = parseInt(String(cartData?.find(item => item.shohin_id === shohin_id)?.sum_quantity || 0));
+        setUpdatedQuantities(prevState => ({
+            ...prevState,
+            [shohin_id]: quantity === 0 ? originalQuantity : quantity
+        }));
+        await handleSubmit()
+        if(userData){
+            navigate(`/${userData.id}/cart`);
+        }
+    };
+    useEffect(() => {
+        console.log(cartData,"cartdata")
+        console.log(updatedQuantities,"updatequantities")
+    },[updatedQuantities,cartData])
+
+    const handleItemSelection =  (shohin_id: number) => {
         setSelectedItems(prevState => {
             if (prevState.includes(shohin_id)) {
                 return prevState.filter(item => item !== shohin_id);
@@ -112,25 +146,7 @@ const Cart = () => {
     };
     
 
-    const handleSubmit = async () => {
-        try {
-            if (!userData) return;
-            for (const item of cartData || []) {
-                const shohin_id = item.shohin_id;
-                const quantity = updatedQuantities[shohin_id];
-                if (quantity !== undefined) {
-                    await axios.put(
-                        `http://localhost:8000/shop/${userData.id}/cart`,
-                        { shohin_id, quantity },
-                        { headers: { Authorization: `Bearer ${cookies.token}` } }
-                    );
-                }
-            }
-            navigate(`/${userData.id}/cart`);
-        } catch (error) {
-            console.error('Error updating cart:', error);
-        }
-    };
+   
 
     const totalAmount = () => {
         let total = 0;

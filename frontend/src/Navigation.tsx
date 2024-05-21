@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-
+import './nav.css'
 interface UserProfileProps {
     id: number;
     name: string;
@@ -43,38 +43,44 @@ const Navigation = () => {
         };
 
         fetchData();
-    }, [cookies, navigate]);
+    }, [cookies, ]);
 
-    const handleLogout = () => {
-        removeCookie('token');
-        navigate('/');
-    };
+    const handleLogout = async () => {
+      try {
+          await axios.post(`http://localhost:8000/auth/logout`);
+          removeCookie('token');
+          navigate('/');
+      } catch (error) {
+          console.error('Error logging out:', error);
+      }
+  };
+    
     
 
    
   return (
     <header >
-      <div >    
+      <div  className='nav'>    
       {cookies.token ? (
-        <>                      
-        <button>
-            <Link to={`/mypage`}>マイページ</Link>
+        <div className='nav_button_wrapper'>                      
+        <button className='shop_button'>
+            <Link to={`/mypage`}>ショップ</Link>
         </button>
-        <button>
+        <button className='cart_button'>
             <Link to={`/${userData?.id}/cart`}>カート</Link>
         </button>
-        <button onClick={handleLogout}>
+        <button className='logout_button' onClick={handleLogout}>
             <Link to={`/`}>ログアウト</Link>
         </button>
-        </>
+        </div>
                       
                       
         ) : ( 
           <div >
-            <button>
+            <button className='login_button'>
               <Link to="/login">ログイン</Link>
               </button>
-            <button>
+            <button className='signup_button'>
               <Link to="/signup" >新規登録</Link>
               </button>
           </div>

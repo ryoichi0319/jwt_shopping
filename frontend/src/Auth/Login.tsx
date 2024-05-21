@@ -30,7 +30,6 @@ const Login = () => {
                     }
                 });
                 
-             console.log(response,"resdata")   
 
             // ログイン成功後に data state を更新
             console.log('Login successful');
@@ -80,6 +79,7 @@ const Login = () => {
                             label="Email"
                             type="email"
                             fullWidth
+                            autoComplete="username"
                             value={email}
                             onChange={handleEmailChange}
                         />
@@ -89,13 +89,14 @@ const Login = () => {
                             variant="outlined"
                             label="Password"
                             type="password"
+                            autoComplete="current-password"
                             fullWidth
                             value={password}
                             onChange={handlePasswordChange}
                         />
                     </Grid>
                 </Grid>
-                <Button type="submit" variant="contained" color="primary" fullWidth>
+                <Button type="submit" variant="contained" color="primary" fullWidth style={{marginTop: "15px"}}>
                     Login
                 </Button>
                 {error && <Typography color="error" align="center">{error}</Typography>}

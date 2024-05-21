@@ -2,6 +2,7 @@ import React, { FormEvent, useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import './shop.css';
 
 interface ShopItemProps {
   shohin_mei: string;
@@ -11,90 +12,100 @@ interface ShopItemProps {
   user_id: number;
 }
 
-const Shop: React.FC<{ id: any  }> = ({ id,  }) => {
+const Shop: React.FC<{ id: any }> = ({ id }) => {
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [shohins, setShohin] = useState<ShopItemProps[] | null>(null);
+  const [shohins, setShohins] = useState<ShopItemProps[] | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         axios.defaults.withCredentials = true;
-        const response = await axios.get(`http://localhost:8000/shop`);
-        setShohin(response.data);
+        const response = await axios.get('http://localhost:8000/shop');
+        setShohins(response.data);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
     };
-  
+
     fetchData();
   }, []);
 
-  const addToCart = async (e: React.FormEvent,
-     shohin_id: number, quantity: number, hanbai_tanka: number,
-      shohin_mei: string,user_id:number,url: string) => {
+  const addToCart = async (
+    e: FormEvent,
+    shohin_id: number,
+    quantity: number,
+    hanbai_tanka: number,
+    shohin_mei: string,
+    user_id: number,
+    url: string
+  ) => {
+    e.preventDefault();
+
     try {
-      e.preventDefault(); // フォームのデフォルトの動作をキャンセル
       axios.defaults.withCredentials = true;
       if (cookies.token) {
         setIsLoggedIn(true);
-        // カートに商品を追加
         await axios.post(
           `http://localhost:8000/shop/${id}/cart`,
           {
-            shohin_id: shohin_id,
-            quantity: quantity,
-            hanbai_tanka: hanbai_tanka,
-            shohin_mei: shohin_mei,
+            shohin_id,
+            quantity,
+            hanbai_tanka,
+            shohin_mei,
             user_id: id,
-            url: url
-
+            url,
           },
           {
             headers: {
-              Authorization: `Bearer ${cookies.token}`
+              Authorization: `Bearer ${cookies.token}`,
             }
           }
         );
-        // カートにアイテムを追加した後、商品データを再取得
-        const response = await axios.get(`http://localhost:8000/shop`);
-        setShohin(response.data);
+        // 再度商品データを取得してステートを更新
+        const response = await axios.get('http://localhost:8000/shop');
+        setShohins(response.data);
+        navigate(`/${id}/cart`)
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error adding item to cart:', error);
     }
   };
 
-
+ 
+ 
   return (
-    <div>
-      {shohins !== null && shohins.length > 0 ? (
-        shohins.map((item) => (
-          <div key={item.shohin_id}>
-            <h3>{item.shohin_mei}</h3>
-            <p>{item.hanbai_tanka}</p>
-            <img src={`${item.url}`} alt="" width={100} height={100} />
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const quantity = parseInt(e.currentTarget.quantity.value);
-              addToCart(e,item.shohin_id, quantity,
-                 item.hanbai_tanka, item.shohin_mei,item.user_id,item.url);
-            }}>
-              <select name="quantity">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-              </select>
-              <button type="submit">カートに追加</button>
-            </form>
-          </div>
-        ))
-      ) : (
-        <p>データがありません</p>
-      )}
+    <div className='shop_container'>
+      <div className='shop'>
+        {shohins !== null && shohins.length > 0 ? (
+          shohins.map((item) => (
+            <div key={item.shohin_id} className='shop_item'>
+              <h3>{item.shohin_mei}</h3>
+              <p>{item.hanbai_tanka}</p>
+              <img src={item.url} alt={item.shohin_mei} width={100} height={100} />
+              <form
+                onSubmit={(e) => addToCart(e, item.shohin_id, parseInt(e.currentTarget.quantity.value), item.hanbai_tanka, item.shohin_mei, item.user_id, item.url)}
+              >
+                <select name='quantity'>
+                  <option value='1'>1</option>
+                  <option value='2'>2</option>
+                  <option value='3'>3</option>
+                </select>
+                <button type='submit'>カートに追加</button>
+              </form>
+            </div>
+          ))
+        ) : (
+          <p>データがありません</p>
+        )}
+      </div>
     </div>
   );
 };
 
 export default Shop;
+// function concat(aa: string[]): any {
+//   throw new Error('Function not implemented.');
+// }
+

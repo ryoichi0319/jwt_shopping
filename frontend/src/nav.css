@@ -1,0 +1,30 @@
+button a{
+    text-decoration: none;
+}
+button{
+    background-color: orange;
+    width: 100px;
+    height: 30px;
+    cursor: pointer;
+    transition: opacity 0.1s ease; /* 変化が滑らかになるようにトランジションを設定 */
+    
+
+}
+button:hover{
+    opacity: 0.6; 
+}
+.nav{
+    display: flex;
+    justify-content: end;
+}
+.nav_button_wrapper{
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    justify-content: center;
+    width: 300px; /* ここでボタンの幅を設定します */
+    gap: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+  }

@@ -1,21 +1,12 @@
 const router = require("express").Router();
+const mysqlConfig = require("../config.js");
 
 const { body, validationResult } = require("express-validator");
-const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
 const JWT = require("jsonwebtoken");
 const cookieParser = require('cookie-parser');
 router.use(cookieParser());
 
-
-const pool = mysql.createPool({
-    connectionLimit: 10,
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "jwt",
-    port: 3306
-});
 
 // ユーザーを登録するエンドポイント
 router.post("/register", [
@@ -40,7 +31,7 @@ router.post("/register", [
             return res.status(500).json({ error: 'Error hashing password.' });
         }
 
-        pool.getConnection((connectionError, connection) => {
+        mysqlConfig.getConnection((connectionError, connection) => {
             if (connectionError) {
                 console.error('MySQL connection error: ' + connectionError.stack);
                 return res.status(500).json({ error: 'MySQL connection error.' });
@@ -101,7 +92,7 @@ router.post("/register", [
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
-    pool.getConnection((connectionError, connection) => {
+    mysqlConfig.getConnection((connectionError, connection) => {
         if (connectionError) {
             console.error('MySQL connection error: ' + connectionError.stack);
             return res.status(500).json({ error: 'MySQL connection error.' });
@@ -192,7 +183,7 @@ router.get("/authenticate", (req, res) => {
 // すべてのユーザーを取得するエンドポイント
 router.get('/users', (req, res) => {
 
-    pool.getConnection((connectionError, connection) => {
+    mysqlConfig.getConnection((connectionError, connection) => {
         if (connectionError) {
             console.error('MySQL connection error: ' + connectionError.stack);
             return res.status(500).json({ error: 'MySQL connection error.' });
@@ -215,7 +206,7 @@ router.get('/users', (req, res) => {
 //     // const token = req.cookies.token;
 //     const userId = req.params.id
 // // データベースからユーザー情報を取得
-//         pool.getConnection((connectionError, connection) => {
+//         mysqlConfig.getConnection((connectionError, connection) => {
 //             if (connectionError) {
 //                 console.error('MySQL connection error: ' + connectionError.stack);
 //                 return res.status(500).json({ error: 'MySQL connection error.' });
@@ -263,7 +254,7 @@ router.get('/:id', (req, res) => {
             }
 
             // ユーザーのデータベースからの取得処理を行う
-            pool.getConnection((connectionError, connection) => {
+            mysqlConfig.getConnection((connectionError, connection) => {
                 if (connectionError) {
                     console.error('MySQL connection error: ' + connectionError.stack);
                     return res.status(500).json({ error: 'MySQL connection error.' });
@@ -290,6 +281,14 @@ router.get('/:id', (req, res) => {
         console.error("Token verification error:", error);
         return res.status(401).json({ message: "認証に失敗しました" });
     }
+});
+
+// ユーザーをログアウトするエンドポイント
+router.post("/logout", (req, res) => {
+    // Cookieからトークンを削除する
+    res.clearCookie("token");
+    // ログアウト成功のレスポンスを返す
+    res.status(200).json({ message: "ログアウトしました" });
 });
     
 module.exports = router;

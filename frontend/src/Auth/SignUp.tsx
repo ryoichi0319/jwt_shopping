@@ -70,6 +70,7 @@ const SignUp = () => {
                             variant="outlined"
                             label="Email"
                             type="email"
+                            autoComplete="username"
                             fullWidth
                             value={email}
                             onChange={handleEmailChange}
@@ -80,13 +81,14 @@ const SignUp = () => {
                             variant="outlined"
                             label="Password"
                             type="password"
+                            autoComplete="current-password"
                             fullWidth
                             value={password}
                             onChange={handlePasswordChange}
                         />
                     </Grid>
                 </Grid>
-                <Button type="submit" variant="contained" color="primary" fullWidth>
+                <Button type="submit" variant="contained" color="primary" fullWidth style={{marginTop: "15px"}}>
                     Sign Up
                 </Button>
                 {error && <Typography color="error" align="center">{error}</Typography>}

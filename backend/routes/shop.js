@@ -1,20 +1,14 @@
 const router = require("express").Router();
-const mysql = require("mysql2");
+const mysqlConfig = require("../config.js");
+
 const JWT = require("jsonwebtoken");
 const cookieParser = require('cookie-parser');
 router.use(cookieParser());
 
-const pool = mysql.createPool({
-    connectionLimit: 10,
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "jwt",
-    port: 3306
-});
+
 
 router.get('/', (req, res) => {
-    pool.getConnection((connectionError, connection) => {
+    mysqlConfig.getConnection((connectionError, connection) => {
         if (connectionError) {
             console.error('MySQL connection error: ' + connectionError.stack);
             return res.status(500).json({ error: 'MySQL connection error.' });
@@ -32,6 +26,8 @@ router.get('/', (req, res) => {
         });
     });
 });
+
+
 
 // / ログイン状態を認証するエンドポイント
 router.get("/authenticate", (req, res) => {
@@ -101,7 +97,7 @@ router.post("/:id/cart", authenticateUser, (req, res) => {
     
 
     // カートに商品を追加
-    pool.getConnection((connectionError, connection) => {
+    mysqlConfig.getConnection((connectionError, connection) => {
         if (connectionError) {
             console.error('MySQL connection error: ' + connectionError.stack);
             return res.status(500).json({ error: 'MySQL connection error.' });
@@ -158,7 +154,7 @@ router.put("/:id/cart", authenticateUser, (req, res) => {
     `;
 
     // カートアイテムの数量を更新
-    pool.getConnection((connectionError, connection) => {
+    mysqlConfig.getConnection((connectionError, connection) => {
         if (connectionError) {
             console.error('MySQL connection error: ' + connectionError.stack);
             return res.status(500).json({ error: 'MySQL connection error.' });
@@ -186,7 +182,7 @@ router.get("/:id/cart", authenticateUser, (req, res) => {
         return res.status(403).json({ message: "アクセス権がありません" });
     }
 
-    pool.getConnection((connectionError, connection) => {
+    mysqlConfig.getConnection((connectionError, connection) => {
         if (connectionError) {
             console.error('MySQL connection error: ' + connectionError.stack);
             return res.status(500).json({ error: 'MySQL connection error.' });
@@ -224,7 +220,7 @@ router.delete("/:id/cart", authenticateUser, (req, res) => {
 
     const deleteCartQuery = `DELETE FROM cart WHERE shohin_id = ? AND user_id = ?;`;
 
-    pool.getConnection((connectionError, connection) => {
+    mysqlConfig.getConnection((connectionError, connection) => {
         if (connectionError) {
             console.error('MySQL connection error: ' + connectionError.stack);
             return res.status(500).json({ error: 'MySQL connection error.' });

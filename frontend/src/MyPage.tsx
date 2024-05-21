@@ -23,12 +23,13 @@ const MyPage = () => {
                 axios.defaults.withCredentials = true;
 
                 if (cookies.token) {
-                    setIsLoggedIn(true);
                     const response = await axios.get(`http://localhost:8000/auth/authenticate`, {
                         headers: {
                             Authorization: `Bearer ${cookies.token}`
                         }
                     });
+                    setIsLoggedIn(true);
+
                     setUserData(response.data);
                 } else {
                     setIsLoggedIn(false);
@@ -51,7 +52,7 @@ const MyPage = () => {
         <div>
             {isLoggedIn ? (
                 <>
-                <h1>Welcome to My Page</h1>
+                <h1>Welcome to Shop</h1>
                  <h2>{userData && <Link to={`/${userData?.id}`}>プロフィール</Link>}</h2>   
                 <p>{userData?.name}様</p>
                 <p>{userData?.email}</p> 
@@ -61,7 +62,6 @@ const MyPage = () => {
                     </div>
                     <div>
                         <br />
-                    <button onClick={handleLogout}>Logout</button>
 
                     </div>
                 </>

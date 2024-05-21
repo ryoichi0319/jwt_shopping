@@ -1,18 +1,12 @@
 const router = require("express").Router();
-const mysql = require("mysql2")
 
-const pool = mysql.createPool({
-    connectionLimit: 10,
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "jwt",
-    port: 3306
-});
+const mysqlConfig = require("../config.js");
+
+
 
 router.get("/:id", (req, res) => {
     const userId = req.params.id;
-    pool.getConnection((err,connection) => {
+    mysqlConfig.getConnection((err,connection) => {
         if(err){
             console.error("error connecting database",err)
             res.status(500).send("Internal Server Error")
