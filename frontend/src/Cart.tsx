@@ -157,10 +157,7 @@ const Cart = () => {
         }
         return total;
     };
-    const a = 1
     
-    const a = 1
-    const b = 2
     return (
         <div>
             {isLoggedIn ? (
