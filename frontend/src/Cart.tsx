@@ -157,9 +157,7 @@ const Cart = () => {
         }
         return total;
     };
-    const test = [1,2,3]
-    const add = test.map(t => t)
-console.log(add)
+    
     
     return (
         <div>
